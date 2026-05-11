@@ -25,98 +25,140 @@ class _CandidaturesTabState extends State<CandidaturesTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: SafeArea(
-        child: Column(
+    final top = MediaQuery.of(context).padding.top;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
+    return BlocBuilder<EncadrantBloc, EncadrantState>(
+      builder: (context, state) {
+        final candidatures = state.candidatures;
+
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header ──────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+
+            // ── Header ──────────────────────────────────────
+            Container(
+              color: Colors.white,
+              width: double.infinity,
+              padding: EdgeInsets.fromLTRB(20, top + 20, 20, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'Candidatures',
                     style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textDark,
                       fontFamily: 'Poppins',
-                      letterSpacing: -0.5,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Candidats affectés à vos entretiens',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppTheme.textLight,
+                  const SizedBox(height: 2),
+                  Text(
+                    candidatures.isEmpty
+                        ? 'Candidats affectés à vos entretiens'
+                        : '${candidatures.length} entretien${candidatures.length > 1 ? 's' : ''} en attente',
+                    style: const TextStyle(
                       fontFamily: 'Poppins',
+                      fontSize: 12,
+                      color: Color(0xFF94A3B8),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
+            const Divider(color: Color(0xFFE2E8F0), height: 1),
 
-            // ── Liste ────────────────────────────────────
+            // ── Contenu ─────────────────────────────────────
             Expanded(
-              child: BlocBuilder<EncadrantBloc, EncadrantState>(
-                builder: (context, state) {
+              child: Container(
+                color: Colors.white,
+                child: () {
                   if (state.isLoadingCandidatures) {
                     return const Center(
                       child: CircularProgressIndicator(
-                          color: AppTheme.primary),
+                          color: AppTheme.primary, strokeWidth: 2),
                     );
                   }
 
-                  if (state.error != null && state.candidatures.isEmpty) {
+                  if (state.error != null && candidatures.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.wifi_off_rounded,
-                              size: 48, color: AppTheme.textLight),
-                          const SizedBox(height: 12),
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: const Icon(Icons.wifi_off_rounded,
+                                size: 28, color: Color(0xFF64748B)),
+                          ),
+                          const SizedBox(height: 14),
                           const Text(
-                            'Impossible de charger les candidatures',
+                            'Impossible de charger',
                             style: TextStyle(
-                              fontSize: 14,
-                              color: AppTheme.textLight,
                               fontFamily: 'Poppins',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A),
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          TextButton(
-                            onPressed: () => context
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Vérifiez votre connexion',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12,
+                              color: Color(0xFF94A3B8),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          GestureDetector(
+                            onTap: () => context
                                 .read<EncadrantBloc>()
                                 .add(EncadrantCandidaturesRequested()),
-                            child: const Text('Réessayer',
-                                style: TextStyle(color: AppTheme.primary)),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Text(
+                                'Réessayer',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     );
                   }
 
-                  if (state.candidatures.isEmpty) {
+                  if (candidatures.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 72,
-                            height: 72,
+                            width: 64,
+                            height: 64,
                             decoration: BoxDecoration(
                               color: AppTheme.primarySoft,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(18),
                             ),
                             child: const Icon(
                               Icons.people_outline_rounded,
-                              size: 36,
+                              size: 30,
                               color: AppTheme.primary,
                             ),
                           ),
@@ -124,20 +166,20 @@ class _CandidaturesTabState extends State<CandidaturesTab> {
                           const Text(
                             'Aucun entretien en attente',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textDark,
                               fontFamily: 'Poppins',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A),
                             ),
                           ),
                           const SizedBox(height: 6),
                           const Text(
-                            'Les candidats vous seront affectés\npar le RH',
+                            'Les candidats vous seront\naffectés par le RH',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.textLight,
                               fontFamily: 'Poppins',
+                              fontSize: 12,
+                              color: Color(0xFF94A3B8),
                             ),
                           ),
                         ],
@@ -147,28 +189,24 @@ class _CandidaturesTabState extends State<CandidaturesTab> {
 
                   return RefreshIndicator(
                     color: AppTheme.primary,
-                    onRefresh: () async {
-                      context
-                          .read<EncadrantBloc>()
-                          .add(EncadrantCandidaturesRequested());
-                    },
-                    child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                      itemCount: state.candidatures.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, i) {
-                        return _CandidatCard(
-                          candidat: state.candidatures[i],
-                        );
-                      },
+                    onRefresh: () async => context
+                        .read<EncadrantBloc>()
+                        .add(EncadrantCandidaturesRequested()),
+                    child: ListView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                          16, 14, 16, bottomInset + 100),
+                      itemCount: candidatures.length,
+                      itemBuilder: (context, i) => _CandidatCard(
+                        candidat: candidatures[i],
+                      ),
                     ),
                   );
-                },
+                }(),
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -177,7 +215,6 @@ class _CandidaturesTabState extends State<CandidaturesTab> {
 // Helpers
 // ─────────────────────────────────────────────────────────────
 
-/// Formate "2026-05-15T10:30:00" → "15/05/2026 10:30"
 String _formatDate(String? raw) {
   if (raw == null || raw.isEmpty) return '';
   try {
@@ -188,7 +225,6 @@ String _formatDate(String? raw) {
     final min = dt.minute.toString().padLeft(2, '0');
     return '$day/$month/${dt.year} $hour:$min';
   } catch (_) {
-    // Retourne les 16 premiers chars si le parsing échoue (ex: "2026-05-15T10:30")
     return raw.length > 16 ? raw.substring(0, 16) : raw;
   }
 }
@@ -199,7 +235,6 @@ String _formatDate(String? raw) {
 
 class _CandidatCard extends StatelessWidget {
   final CandidatureEntretienModel candidat;
-
   const _CandidatCard({required this.candidat});
 
   @override
@@ -225,89 +260,134 @@ class _CandidatCard extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.border, width: 0.5),
-          boxShadow: AppTheme.shadowLight,
-        ),
-        child: Row(
-          children: [
-            // Avatar initiales
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppTheme.primarySoft,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Center(
-                child: Text(
-                  initiales,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primary,
-                    fontFamily: 'Poppins',
+        margin: const EdgeInsets.only(bottom: 10),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+
+              // ── Bordure gauche orange ──────────────────
+              Container(
+                width: 3,
+                decoration: const BoxDecoration(
+                  color: AppTheme.primary,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(14),
+                    bottomLeft: Radius.circular(14),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 14),
 
-            // Infos — FIX: Expanded contient tout, les pills dans Wrap
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    candidat.nomComplet,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textDark,
-                      fontFamily: 'Poppins',
+              // ── Contenu ───────────────────────────────
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(14),
+                      bottomRight: Radius.circular(14),
                     ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    candidat.sujetTitre,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecond,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  // ✅ FIX : Wrap à la place de Row → les pills passent à la ligne
-                  //          si elles dépassent la largeur disponible
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      _Pill(label: candidat.filiere),
-                      if (dateFormatee.isNotEmpty)
-                        _Pill(
-                          label: dateFormatee,
-                          icon: Icons.calendar_today_rounded,
-                        ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x0A000000),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
+                  child: Row(
+                    children: [
 
-            // Flèche
-            const SizedBox(width: 4),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: AppTheme.textLight,
-              size: 22,
-            ),
-          ],
+                      // Avatar
+                      Container(
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primarySoft,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            initiales,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // Infos
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              candidat.nomComplet,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              candidat.sujetTitre,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 11,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                if (candidat.filiere.isNotEmpty)
+                                  _Pill(label: candidat.filiere),
+                                if (dateFormatee.isNotEmpty)
+                                  _Pill(
+                                    label: dateFormatee,
+                                    icon: Icons.calendar_today_rounded,
+                                    highlight: true,
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Flèche
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primarySoft,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppTheme.primary,
+                          size: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -315,37 +395,47 @@ class _CandidatCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Pill / badge
+// Pill
 // ─────────────────────────────────────────────────────────────
 
 class _Pill extends StatelessWidget {
   final String label;
   final IconData? icon;
+  final bool highlight;
 
-  const _Pill({required this.label, this.icon});
+  const _Pill({
+    required this.label,
+    this.icon,
+    this.highlight = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final color = highlight ? AppTheme.primary : const Color(0xFF64748B);
+    final bg = highlight
+        ? AppTheme.primarySoft
+        : const Color(0xFFF1F5F9);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppTheme.darkSoft,
-        borderRadius: BorderRadius.circular(6),
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 10, color: AppTheme.textSecond),
+            Icon(icon, size: 10, color: color),
             const SizedBox(width: 4),
           ],
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-              color: AppTheme.textSecond,
+            style: TextStyle(
               fontFamily: 'Poppins',
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: color,
             ),
           ),
         ],

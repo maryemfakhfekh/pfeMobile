@@ -8,7 +8,13 @@ import '../../data/models/stagiaire_encadrant_model.dart';
 
 class StagiaireCard extends StatefulWidget {
   final StagiaireEncadrantModel stagiaire;
-  const StagiaireCard({super.key, required this.stagiaire});
+  final Color avatarColor;
+
+  const StagiaireCard({
+    super.key,
+    required this.stagiaire,
+    this.avatarColor = const Color(0xFF1E293B),
+  });
 
   @override
   State<StagiaireCard> createState() => _StagiaireCardState();
@@ -40,312 +46,353 @@ class _StagiaireCardState extends State<StagiaireCard> {
 
   Color _pctColor(int pct) {
     if (pct >= 70) return const Color(0xFF16A34A);
-    if (pct >= 40) return AppTheme.primary;
+    if (pct >= 30) return AppTheme.primary;
     return const Color(0xFF94A3B8);
+  }
+
+  int? _joursRestants() {
+    final fin = widget.stagiaire.dateFin;
+    if (fin == null || fin.isEmpty) return null;
+    try {
+      final parts = fin.split('/');
+      if (parts.length < 3) return null;
+      final date = DateTime(
+        int.parse(parts[2]),
+        int.parse(parts[1]),
+        int.parse(parts[0]),
+      );
+      return date.difference(DateTime.now()).inDays;
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final s   = widget.stagiaire;
+    final s = widget.stagiaire;
     final pct = (s.progressionGlobale * 100).toInt();
+    final jours = _joursRestants();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: const Color(0xFFE2E8F0), width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
 
-            // ── Ligne principale ───────────────────────────
-            Row(
-              children: [
-
-                // Avatar
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      s.initials,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+            // ── Bordure gauche animée ──────────────────────
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 3,
+              decoration: BoxDecoration(
+                color: _expanded ? _pctColor(pct) : Colors.transparent,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(14),
+                  bottomLeft: Radius.circular(14),
                 ),
-
-                const SizedBox(width: 12),
-
-                // Nom + sujet
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(children: [
-                        Flexible(
-                          child: Text(
-                            s.nomComplet,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          width: 7,
-                          height: 7,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF16A34A),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ]),
-                      const SizedBox(height: 3),
-                      Text(
-                        s.sujetTitre,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 11,
-                          color: Color(0xFF94A3B8),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                // % progression + chevron
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '$pct%',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: _pctColor(pct),
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const Text(
-                      'progression',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 9,
-                        color: Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(width: 6),
-
-                GestureDetector(
-                  onTap: () =>
-                      setState(() => _expanded = !_expanded),
-                  child: Icon(
-                    _expanded
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
-                    color: const Color(0xFF94A3B8),
-                    size: 20,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // ── Barre de progression ───────────────────────
-            ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: LinearProgressIndicator(
-                value: s.progressionGlobale,
-                backgroundColor: const Color(0xFFE2E8F0),
-                color: _pctColor(pct),
-                minHeight: 4,
               ),
             ),
 
-            const SizedBox(height: 10),
-
-            // ── Séparateur ─────────────────────────────────
-            const Divider(
-              color: Color(0xFFE2E8F0),
-              height: 1,
-              thickness: 0.5,
-            ),
-
-            const SizedBox(height: 10),
-
-            // ── Badges ─────────────────────────────────────
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 9, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: _badgeBg(pct),
-                    borderRadius: BorderRadius.circular(20),
+            // ── Contenu carte ──────────────────────────────
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: _expanded
+                        ? Radius.zero
+                        : const Radius.circular(14),
+                    bottomLeft: _expanded
+                        ? Radius.zero
+                        : const Radius.circular(14),
+                    topRight: const Radius.circular(14),
+                    bottomRight: const Radius.circular(14),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: _badgeColor(pct),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        _badgeLabel(pct),
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: _badgeColor(pct),
-                        ),
-                      ),
-                    ],
+                  border: Border.all(
+                    color: const Color(0xFFE2E8F0),
+                    width: 0.5,
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 9, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                          Icons.check_circle_outline_rounded,
-                          size: 11,
-                          color: Color(0xFF64748B)),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${s.tachesTerminees}/${s.tachesTotales} tâches',
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (s.rapportDepose)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 9, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEAFAF0),
-                      borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
+                  ],
+                ),
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    // ── Ligne principale ───────────────────
+                    Row(
                       children: [
-                        Icon(Icons.description_outlined,
-                            size: 11,
-                            color: Color(0xFF16A34A)),
-                        SizedBox(width: 4),
-                        Text(
-                          'Rapport ✓',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF16A34A),
+
+                        // Avatar
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: widget.avatarColor,
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          child: Center(
+                            child: Text(
+                              s.initials,
+                              style: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        // Nom + sujet + jours restants
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(children: [
+                                Flexible(
+                                  child: Text(
+                                    s.nomComplet,
+                                    style: const TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF0F172A),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  width: 7,
+                                  height: 7,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF16A34A),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ]),
+                              const SizedBox(height: 3),
+                              Text(
+                                s.sujetTitre,
+                                style: const TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 11,
+                                  color: Color(0xFF94A3B8),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (jours != null) ...[
+                                const SizedBox(height: 4),
+                                Row(children: [
+                                  const Icon(
+                                    Icons.calendar_today_outlined,
+                                    size: 10,
+                                    color: Color(0xFF94A3B8),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Text(
+                                    'Fin dans ',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 9,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: jours <= 14
+                                          ? const Color(0xFFFFF4ED)
+                                          : const Color(0xFFEAFAF0),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '$jours jours',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w600,
+                                        color: jours <= 14
+                                            ? AppTheme.primary
+                                            : const Color(0xFF16A34A),
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                              ],
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        // % + chevron
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '$pct%',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                color: _pctColor(pct),
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            const Text(
+                              'progression',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 9,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            GestureDetector(
+                              onTap: () =>
+                                  setState(() => _expanded = !_expanded),
+                              child: Icon(
+                                _expanded
+                                    ? Icons.keyboard_arrow_up_rounded
+                                    : Icons.keyboard_arrow_down_rounded,
+                                color: const Color(0xFF94A3B8),
+                                size: 20,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ),
-              ],
-            ),
 
-            // ── Détails expandables ────────────────────────
-            if (_expanded) ...[
-              const SizedBox(height: 12),
-              const Divider(
-                  color: Color(0xFFE2E8F0),
-                  height: 1,
-                  thickness: 0.5),
-              const SizedBox(height: 12),
-              _InfoRow(
-                  icon: Icons.school_outlined,
-                  label: 'Filière',
-                  value: s.filiere),
-              _InfoRow(
-                  icon: Icons.calendar_today_outlined,
-                  label: 'Période',
-                  value:
-                  '${s.dateDebut} — ${s.dateFin ?? "En cours"}'),
-              _InfoRow(
-                  icon: Icons.email_outlined,
-                  label: 'Email',
-                  value: s.email),
-              const SizedBox(height: 14),
-              Row(children: [
-                Expanded(
-                  child: _ActionBtn(
-                    label: 'Message',
-                    icon: Icons.chat_bubble_outline_rounded,
-                    color: AppTheme.primary,
-                    filled: false,
-                    onTap: () => context.router
-                        .push(EncadrantChatRoute(stagiaire: s)),
-                  ),
+                    const SizedBox(height: 12),
+
+                    // ── Barre de progression ───────────────
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: LinearProgressIndicator(
+                        value: s.progressionGlobale,
+                        backgroundColor: const Color(0xFFE2E8F0),
+                        color: _pctColor(pct),
+                        minHeight: 4,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    const Divider(
+                      color: Color(0xFFE2E8F0),
+                      height: 1,
+                      thickness: 0.5,
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // ── Badges ─────────────────────────────
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _Badge(
+                          label: _badgeLabel(pct),
+                          color: _badgeColor(pct),
+                          bg: _badgeBg(pct),
+                          dot: true,
+                        ),
+                        _Badge(
+                          label:
+                          '${s.tachesTerminees}/${s.tachesTotales} tâches',
+                          color: const Color(0xFF64748B),
+                          bg: const Color(0xFFF1F5F9),
+                          icon: Icons.check_circle_outline_rounded,
+                        ),
+                        if (s.rapportDepose)
+                          _Badge(
+                            label: 'Rapport ✓',
+                            color: const Color(0xFF16A34A),
+                            bg: const Color(0xFFEAFAF0),
+                            icon: Icons.description_outlined,
+                          ),
+                      ],
+                    ),
+
+                    // ── Détails expandables ────────────────
+                    if (_expanded) ...[
+                      const SizedBox(height: 12),
+                      const Divider(
+                        color: Color(0xFFE2E8F0),
+                        height: 1,
+                        thickness: 0.5,
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          children: [
+                            _InfoRow(
+                              icon: Icons.school_outlined,
+                              label: 'Filière',
+                              value: s.filiere,
+                            ),
+                            _InfoRow(
+                              icon: Icons.calendar_today_outlined,
+                              label: 'Période',
+                              value:
+                              '${s.dateDebut} — ${s.dateFin ?? "En cours"}',
+                            ),
+                            _InfoRow(
+                              icon: Icons.email_outlined,
+                              label: 'Email',
+                              value: s.email,
+                              isLast: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(children: [
+                        Expanded(
+                          child: _ActionBtn(
+                            label: 'Message',
+                            icon: Icons.chat_bubble_outline_rounded,
+                            color: AppTheme.primary,
+                            filled: false,
+                            onTap: () => context.router
+                                .push(EncadrantChatRoute(stagiaire: s)),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _ActionBtn(
+                            label: 'Voir détail',
+                            icon: Icons.arrow_forward_rounded,
+                            color: const Color(0xFF1E293B),
+                            filled: true,
+                            onTap: () => context.router
+                                .push(DetailStagiaireRoute(stagiaire: s)),
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _ActionBtn(
-                    label: 'Voir détail',
-                    icon: Icons.arrow_forward_rounded,
-                    color: const Color(0xFF1E293B),
-                    filled: true,
-                    onTap: () => context.router
-                        .push(DetailStagiaireRoute(stagiaire: s)),
-                  ),
-                ),
-              ]),
-            ],
+              ),
+            ),
           ],
         ),
       ),
@@ -353,59 +400,119 @@ class _StagiaireCardState extends State<StagiaireCard> {
   }
 }
 
+// ── Badge ──────────────────────────────────────────────────────
+class _Badge extends StatelessWidget {
+  final String label;
+  final Color color;
+  final Color bg;
+  final bool dot;
+  final IconData? icon;
+
+  const _Badge({
+    required this.label,
+    required this.color,
+    required this.bg,
+    this.dot = false,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (dot)
+            Container(
+              width: 6,
+              height: 6,
+              decoration:
+              BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+          if (icon != null) Icon(icon, size: 11, color: color),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── InfoRow ────────────────────────────────────────────────────
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final bool isLast;
 
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
+    this.isLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
       child: Row(children: [
         Container(
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+                color: const Color(0xFFE2E8F0), width: 0.5),
           ),
           child: Icon(icon, size: 13, color: const Color(0xFF64748B)),
         ),
         const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 10,
-                color: Color(0xFF94A3B8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 10,
+                  color: Color(0xFF94A3B8),
+                ),
               ),
-            ),
-            Text(
-              value,
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF0F172A),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0F172A),
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ]),
     );
   }
 }
 
+// ── ActionBtn ──────────────────────────────────────────────────
 class _ActionBtn extends StatelessWidget {
   final String label;
   final IconData icon;

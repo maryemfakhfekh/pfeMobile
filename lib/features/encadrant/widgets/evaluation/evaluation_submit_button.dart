@@ -22,9 +22,11 @@ class EvaluationSubmitButton extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isLoading ? AppTheme.border : AppTheme.surface,
-          borderRadius: BorderRadius.circular(AppTheme.radiusMD),
-          border: Border.all(color: AppTheme.border),
+          color: isLoading
+              ? AppTheme.primary.withOpacity(0.6)
+              : AppTheme.primary,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isLoading ? [] : AppTheme.shadowOrange,
         ),
         child: Center(
           child: isLoading
@@ -32,20 +34,22 @@ class EvaluationSubmitButton extends StatelessWidget {
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
-                color: AppTheme.primary, strokeWidth: 2),
+                color: Colors.white, strokeWidth: 2),
           )
-              : Row(
+              : const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.send_rounded,
-                  size: 16, color: AppTheme.textSecond),
-              const SizedBox(width: 8),
+              Icon(Icons.send_rounded,
+                  size: 16, color: Colors.white),
+              SizedBox(width: 8),
               Text(
                 "Envoyer l'évaluation",
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(color: AppTheme.textSecond),
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),

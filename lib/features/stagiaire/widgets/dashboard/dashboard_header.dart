@@ -1,16 +1,21 @@
+// lib/features/stagiaire/widgets/dashboard/dashboard_header.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../data/models/stagiaire_model.dart';
+
 class DashboardHeader extends StatelessWidget {
   final StagiaireModel dossier;
   final VoidCallback?  onProfilTap;
+  final VoidCallback?  onNotifTap;
   final int            notifCount;
 
   const DashboardHeader({
     super.key,
     required this.dossier,
     this.onProfilTap,
+    this.onNotifTap,
     this.notifCount = 0,
   });
 
@@ -39,7 +44,7 @@ class DashboardHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
 
-          // ── Greeting (identique à l'Encadrant) ────────
+          // ── Greeting ───────────────────────────────────
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,64 +74,67 @@ class DashboardHeader extends StatelessWidget {
           ),
 
           // ── Bouton notif ───────────────────────────────
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.border),
+          GestureDetector(
+            onTap: onNotifTap,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: AppTheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.border),
+                  ),
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: AppTheme.textPrimary,
+                    size: 20,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.notifications_none_rounded,
-                  color: AppTheme.textPrimary,
-                  size: 20,
-                ),
-              ),
-              if (notifCount > 0)
-                Positioned(
-                  top: -4,
-                  right: -4,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppTheme.background,
-                        width: 1.5,
+                if (notifCount > 0)
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: AppTheme.error,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppTheme.background,
+                          width: 1.5,
+                        ),
                       ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$notifCount',
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.w800,
+                      child: Center(
+                        child: Text(
+                          notifCount > 9 ? '9+' : '$notifCount',
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
 
           const SizedBox(width: 10),
 
-          // ── Avatar rond (comme Encadrant image 1) ─────
+          // ── Avatar ─────────────────────────────────────
           GestureDetector(
             onTap: onProfilTap,
             child: Container(
               width: 42,
               height: 42,
-              decoration: BoxDecoration(
-                color: AppTheme.textPrimary, // dark navy
+              decoration: const BoxDecoration(
+                color: AppTheme.textPrimary,
                 shape: BoxShape.circle,
               ),
               child: Center(

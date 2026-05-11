@@ -17,3 +17,19 @@ class StagiaireError extends StagiaireState {
   final String message;
   StagiaireError(this.message);
 }
+
+class ProfilUpdating extends StagiaireState {
+  final StagiaireModel dossier;
+  ProfilUpdating(this.dossier);
+}
+
+class ProfilUpdated extends StagiaireState {
+  final StagiaireModel dossier;
+  ProfilUpdated(this.dossier);
+}
+
+class ProfilUpdateError extends StagiaireState {
+  final StagiaireModel dossier;
+  final String message;
+  ProfilUpdateError(this.dossier, this.message);
+}

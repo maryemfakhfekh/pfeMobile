@@ -93,6 +93,7 @@ class _TachesTabState extends State<TachesTab> {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return BlocListener<EncadrantBloc, EncadrantState>(
       listenWhen: (p, c) => p.stagiaires.length != c.stagiaires.length,
@@ -118,7 +119,7 @@ class _TachesTabState extends State<TachesTab> {
 
               // ── Header ──────────────────────────────────────
               Container(
-                color: AppTheme.surface,
+                color: Colors.white,
                 padding: EdgeInsets.fromLTRB(20, top + 20, 20, 16),
                 child: Row(
                   children: [
@@ -130,9 +131,9 @@ class _TachesTabState extends State<TachesTab> {
                             'Gestion des Tâches',
                             style: TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: 20,
+                              fontSize: 22,
                               fontWeight: FontWeight.w800,
-                              color: AppTheme.textDark,
+                              color: Color(0xFF0F172A),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -141,36 +142,28 @@ class _TachesTabState extends State<TachesTab> {
                             style: const TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 12,
-                              color: AppTheme.textLight,
+                              color: Color(0xFF94A3B8),
                             ),
                           ),
                         ],
                       ),
                     ),
+
+                    // ── Bouton + rond ──────────────────────
                     GestureDetector(
                       onTap: () => _openForm(ctx, stagiaires),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
                           color: AppTheme.primary,
-                          borderRadius: BorderRadius.circular(12),
+                          shape: BoxShape.circle,
                           boxShadow: AppTheme.shadowOrange,
                         ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.add_rounded,
-                                color: Colors.white, size: 18),
-                            SizedBox(width: 6),
-                            Text('Nouvelle',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                )),
-                          ],
+                        child: const Icon(
+                          Icons.add_rounded,
+                          color: Colors.white,
+                          size: 24,
                         ),
                       ),
                     ),
@@ -200,59 +193,71 @@ class _TachesTabState extends State<TachesTab> {
                 ]),
               ),
 
-              const Divider(color: AppTheme.border, height: 1),
+              const Divider(color: Color(0xFFE2E8F0), height: 1),
 
-              // ── Stats compactes ─────────────────────────────
+              // ── Stats ────────────────────────────────────────
               if (taches.isNotEmpty) ...[
                 Container(
-                  color: AppTheme.background,
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
                   child: Row(
                     children: [
-                      _StatChip(
-                          label: 'À faire',
-                          count: nbFaire,
-                          color: AppTheme.textLight,
-                          bg: AppTheme.darkSoft),
-                      const SizedBox(width: 8),
-                      _StatChip(
-                          label: 'En cours',
-                          count: nbCours,
-                          color: AppTheme.primary,
-                          bg: AppTheme.primarySoft),
-                      const SizedBox(width: 8),
-                      _StatChip(
-                          label: 'Terminé',
-                          count: nbTermine,
-                          color: AppTheme.success,
-                          bg: AppTheme.successSoft),
+                      _StatCard(
+                        label: 'À faire',
+                        value: '$nbFaire',
+                        valueColor: const Color(0xFF64748B),
+                        bg: const Color(0xFFF1F5F9),
+                        dotColor: const Color(0xFF94A3B8),
+                      ),
+                      const SizedBox(width: 10),
+                      _StatCard(
+                        label: 'En cours',
+                        value: '$nbCours',
+                        valueColor: AppTheme.primary,
+                        bg: const Color(0xFFFFF4ED),
+                        dotColor: AppTheme.primary,
+                      ),
+                      const SizedBox(width: 10),
+                      _StatCard(
+                        label: 'Terminé',
+                        value: '$nbTermine',
+                        valueColor: const Color(0xFF16A34A),
+                        bg: const Color(0xFFEAFAF0),
+                        dotColor: const Color(0xFF16A34A),
+                      ),
                     ],
                   ),
                 ),
-                const Divider(color: AppTheme.border, height: 1),
+                const Divider(color: Color(0xFFE2E8F0), height: 1),
               ],
 
               // ── Liste ───────────────────────────────────────
               Expanded(
-                child: state.isLoading
-                    ? const Center(
-                    child: CircularProgressIndicator(
-                        color: AppTheme.primary, strokeWidth: 2))
-                    : taches.isEmpty
-                    ? const TacheEmpty()
-                    : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 40),
-                  itemCount: taches.length,
-                  itemBuilder: (_, i) {
-                    final stagiaire = stagiaires
-                        .where((s) => s.id == taches[i].stagiaireId)
-                        .firstOrNull;
-                    return TacheEncadrantCard(
-                      tache: taches[i],
-                      stagiaire: stagiaire,
-                      onDelete: () => _confirmDelete(ctx, taches[i]),
-                    );
-                  },
+                child: Container(
+                  color: Colors.white,
+                  child: state.isLoading
+                      ? const Center(
+                      child: CircularProgressIndicator(
+                          color: AppTheme.primary, strokeWidth: 2))
+                      : taches.isEmpty
+                      ? const TacheEmpty()
+                      : ListView.builder(
+                    padding: EdgeInsets.fromLTRB(
+                        16, 14, 16, bottomInset + 100),
+                    itemCount: taches.length,
+                    itemBuilder: (_, i) {
+                      final stagiaire = stagiaires
+                          .where((s) =>
+                      s.id == taches[i].stagiaireId)
+                          .firstOrNull;
+                      return TacheEncadrantCard(
+                        tache: taches[i],
+                        stagiaire: stagiaire,
+                        onDelete: () =>
+                            _confirmDelete(ctx, taches[i]),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -263,59 +268,61 @@ class _TachesTabState extends State<TachesTab> {
   }
 }
 
-// ── Stat chip compact ─────────────────────────────────────────
-class _StatChip extends StatelessWidget {
+// ── Stat Card ─────────────────────────────────────────────────
+class _StatCard extends StatelessWidget {
   final String label;
-  final int count;
-  final Color color;
+  final String value;
+  final Color valueColor;
   final Color bg;
+  final Color dotColor;
 
-  const _StatChip({
+  const _StatCard({
     required this.label,
-    required this.count,
-    required this.color,
+    required this.value,
+    required this.valueColor,
     required this.bg,
+    required this.dotColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 8, height: 8,
+              width: 7,
+              height: 7,
               decoration: BoxDecoration(
-                  color: color, shape: BoxShape.circle),
+                color: dotColor,
+                shape: BoxShape.circle,
+              ),
             ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$count',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: color,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 10,
-                    color: color.withOpacity(0.8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: valueColor,
+                letterSpacing: -0.5,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: valueColor.withOpacity(0.8),
+              ),
             ),
           ],
         ),

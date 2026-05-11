@@ -38,7 +38,7 @@ class _EncadrantChatPageState extends State<EncadrantChatPage> {
   Widget build(BuildContext context) {
     if (_encadrantUserId == 0) {
       return const Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.white,
         body: Center(
           child: CircularProgressIndicator(
               color: AppTheme.primary, strokeWidth: 2),
@@ -57,9 +57,6 @@ class _EncadrantChatPageState extends State<EncadrantChatPage> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Vue principale : orchestrateur des widgets
-// ─────────────────────────────────────────────────────────────
 class _ChatView extends StatefulWidget {
   final StagiaireEncadrantModel stagiaire;
   final int encadrantUserId;
@@ -112,14 +109,14 @@ class _ChatViewState extends State<_ChatView> {
     ));
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: const Color(0xFFF8FAFC),
       body: Column(
         children: [
-          // ── Header ──────────────────────────────────────────
+          // ── Header ─────────────────────────────────────────
           ChatAppBar(stagiaire: widget.stagiaire),
-          Container(height: 1, color: AppTheme.borderLight),
+          const Divider(color: Color(0xFFE2E8F0), height: 1),
 
-          // ── Liste des messages ───────────────────────────────
+          // ── Messages ───────────────────────────────────────
           Expanded(
             child: BlocConsumer<ChatBloc, ChatState>(
               listener: (_, state) {
@@ -181,7 +178,7 @@ class _ChatViewState extends State<_ChatView> {
             ),
           ),
 
-          // ── Saisie ───────────────────────────────────────────
+          // ── Input ──────────────────────────────────────────
           ChatInputBar(
             controller: _controller,
             onSend: _send,

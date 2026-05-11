@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_theme.dart';
@@ -7,10 +6,11 @@ import '../logic/encadrant_bloc.dart';
 import '../logic/encadrant_event.dart';
 import '../logic/encadrant_state.dart';
 import '../widgets/evaluation/index.dart';
+import 'package:auto_route/auto_route.dart';
 
-@RoutePage()  // ✅ obligatoire pour AutoRoute
+@RoutePage()
 class EvaluationPage extends StatefulWidget {
-  const EvaluationPage({super.key}); // ✅ plus de paramètre stagiaire
+  const EvaluationPage({super.key});
 
   @override
   State<EvaluationPage> createState() => _EvaluationPageState();
@@ -62,13 +62,11 @@ class _EvaluationPageState extends State<EvaluationPage> {
     }
     setState(() => _isLoading = true);
     final bloc = context.read<EncadrantBloc>();
-
     bloc.add(EncadrantEvaluationSubmitted(
       stagiaireId: _selected!.id,
       note:        _noteFinale,
       commentaire: _commentaireController.text.trim(),
     ));
-
     final result = await bloc.stream.firstWhere((s) => !s.isLoading);
     if (!mounted) return;
     setState(() => _isLoading = false);
@@ -97,127 +95,168 @@ class _EvaluationPageState extends State<EvaluationPage> {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
     return BlocBuilder<EncadrantBloc, EncadrantState>(
       builder: (ctx, state) {
-        return SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(20, top + 20, 20, 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Header ───────────────────────────────
-              Row(children: [
-                Container(
-                  width: 36, height: 36,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primarySoft,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.workspace_premium_rounded,
-                      color: AppTheme.primary, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Évaluations',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineLarge!
-                            .copyWith(color: AppTheme.textDark)),
-                    Text('Évaluez la performance de vos stagiaires',
-                        style: Theme.of(context).textTheme.bodySmall),
-                  ],
-                ),
-              ]),
-              const SizedBox(height: 24),
+        return Container(
+          color: Colors.white,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+                20, top + 20, 20, bottomInset + 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
 
-              // ── Sélection stagiaire ──────────────────
-              if (state.stagiaires.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Text('Aucun stagiaire affecté',
-                        style: Theme.of(context).textTheme.bodySmall),
+                // ── Header ─────────────────────────────────
+                const Text(
+                  'Évaluations',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0F172A),
                   ),
-                )
-              else
-                EvaluationStagiaireDropdown(
-                  stagiaires: state.stagiaires,
-                  selected:   _selected,
-                  onSelected: (s) => setState(() => _selected = s),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Évaluez la performance de vos stagiaires',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    color: Color(0xFF94A3B8),
+                  ),
                 ),
 
-              // ── Formulaire ───────────────────────────
-              if (_selected != null) ...[
-                const SizedBox(height: 24),
-                Text("Critères d'évaluation",
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(color: AppTheme.textDark)),
-                const SizedBox(height: 12),
-                ..._criteres.entries.map((e) => EvaluationCritereCard(
-                  titre:     e.key,
-                  sousTitre: e.value.sousTitre,
-                  note:      e.value.note,
-                  onChanged: (v) => setState(() =>
-                  _criteres[e.key] = _Critere(e.value.sousTitre, v)),
-                )),
-                const SizedBox(height: 16),
-                EvaluationCommentaireCard(
-                    controller: _commentaireController),
                 const SizedBox(height: 20),
-                EvaluationSubmitButton(
-                  isLoading: _isLoading,
-                  onTap:     _soumettre,
-                ),
-                const SizedBox(height: 28),
-              ],
+                const Divider(color: Color(0xFFE2E8F0), height: 1),
+                const SizedBox(height: 16),
 
-              // ── Historique ───────────────────────────
-              if (state.evaluationsByStagiaire.isNotEmpty) ...[
-                Text('Historique des évaluations',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(color: AppTheme.textDark)),
-                const SizedBox(height: 12),
-                ...state.evaluationsByStagiaire.entries.map((entry) {
-                  final eval = entry.value;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius:
-                      BorderRadius.circular(AppTheme.radiusLG),
-                      border: Border.all(color: AppTheme.border),
+                // ── Sélection stagiaire ─────────────────────
+                if (state.stagiaires.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Text('Aucun stagiaire affecté',
+                          style: Theme.of(context).textTheme.bodySmall),
                     ),
-                    child: Row(children: [
-                      const Icon(Icons.star_rounded,
-                          color: AppTheme.primary, size: 18),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text('Stagiaire #${entry.key}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(color: AppTheme.textDark)),
+                  )
+                else
+                  EvaluationStagiaireDropdown(
+                    stagiaires: state.stagiaires,
+                    selected:   _selected,
+                    onSelected: (s) => setState(() => _selected = s),
+                  ),
+
+                // ── Formulaire ──────────────────────────────
+                if (_selected != null) ...[
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Critères d'évaluation",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ..._criteres.entries.map((e) => EvaluationCritereCard(
+                    titre:     e.key,
+                    sousTitre: e.value.sousTitre,
+                    note:      e.value.note,
+                    onChanged: (v) => setState(() =>
+                    _criteres[e.key] =
+                        _Critere(e.value.sousTitre, v)),
+                  )),
+                  const SizedBox(height: 12),
+                  EvaluationCommentaireCard(
+                      controller: _commentaireController),
+                  const SizedBox(height: 16),
+                  EvaluationSubmitButton(
+                    isLoading: _isLoading,
+                    onTap:     _soumettre,
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // ── Historique ──────────────────────────────
+                if (state.evaluationsByStagiaire.isNotEmpty) ...[
+                  const Text(
+                    'Historique des évaluations',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ...state.evaluationsByStagiaire.entries.map((entry) {
+                    final eval = entry.value;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: const Color(0xFFE2E8F0), width: 0.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      Text(
-                        '${eval.note.toStringAsFixed(1)}/5',
-                        style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.primary),
-                      ),
-                    ]),
-                  );
-                }),
+                      child: Row(children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primarySoft,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.star_rounded,
+                              color: AppTheme.primary, size: 18),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Stagiaire #${entry.key}',
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primarySoft,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${eval.note.toStringAsFixed(1)}/5',
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ),
+                      ]),
+                    );
+                  }),
+                ],
               ],
-            ],
+            ),
           ),
         );
       },

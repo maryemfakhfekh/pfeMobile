@@ -12,6 +12,7 @@ class StagiaireBloc extends Bloc<StagiaireEvent, StagiaireState> {
 
   StagiaireBloc({required this.repository}) : super(StagiaireInitial()) {
     on<LoadDossier>(_onLoad);
+    on<UpdateProfil>(_onUpdateProfil);
   }
 
   Future<void> _onLoad(
@@ -24,6 +25,32 @@ class StagiaireBloc extends Bloc<StagiaireEvent, StagiaireState> {
       emit(StagiaireLoaded(dossier));
     } catch (e) {
       emit(StagiaireError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateProfil(
+      UpdateProfil event,
+      Emitter<StagiaireState> emit,
+      ) async {
+    // Garder le dossier actuel pour l'afficher pendant le chargement
+    final current = state is StagiaireLoaded
+        ? (state as StagiaireLoaded).dossier
+        : state is ProfilUpdated
+        ? (state as ProfilUpdated).dossier
+        : null;
+
+    if (current == null) return;
+
+    emit(ProfilUpdating(current));
+    try {
+      final updated = await repository.updateProfil(
+        nomComplet: event.nomComplet,
+        email:      event.email,
+        telephone:  event.telephone,
+      );
+      emit(ProfilUpdated(updated));
+    } catch (e) {
+      emit(ProfilUpdateError(current, e.toString()));
     }
   }
 }

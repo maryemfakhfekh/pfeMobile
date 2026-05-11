@@ -9,6 +9,15 @@ import 'stagiaire_card.dart';
 import 'stagiaires_empty.dart';
 import 'stagiaires_search_bar.dart';
 
+const _avatarColors = [
+  Color(0xFF1E293B),
+  Color(0xFF0F6E56),
+  Color(0xFF534AB7),
+  Color(0xFF993556),
+  Color(0xFF185FA5),
+  Color(0xFF854F0B),
+];
+
 class StagiairesTab extends StatefulWidget {
   const StagiairesTab({super.key});
 
@@ -22,6 +31,7 @@ class _StagiairesTabState extends State<StagiairesTab> {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return BlocBuilder<EncadrantBloc, EncadrantState>(
       builder: (ctx, state) {
@@ -41,16 +51,16 @@ class _StagiairesTabState extends State<StagiairesTab> {
             100)
             .toInt();
         final terminees = all.fold(0, (s, x) => s + x.tachesTerminees);
-        final aFaire =
-        all.fold(0, (s, x) => s + (x.tachesTotales - x.tachesTerminees));
+        final aFaire = all.fold(
+            0, (s, x) => s + (x.tachesTotales - x.tachesTerminees));
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // ── Header aligné à gauche ───────────────────
+            // ── Header ───────────────────────────────────────
             Container(
-              color: AppTheme.surface,
+              color: Colors.white,
               width: double.infinity,
               padding: EdgeInsets.fromLTRB(20, top + 20, 20, 16),
               child: Column(
@@ -60,9 +70,9 @@ class _StagiairesTabState extends State<StagiairesTab> {
                     'Mes Stagiaires',
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      fontSize: 20,
+                      fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: AppTheme.textDark,
+                      color: Color(0xFF0F172A),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -71,43 +81,49 @@ class _StagiairesTabState extends State<StagiairesTab> {
                     style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 12,
-                      color: AppTheme.textLight,
+                      color: Color(0xFF94A3B8),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const Divider(color: AppTheme.border, height: 1),
+            const Divider(color: Color(0xFFE2E8F0), height: 1),
 
-            // ── Stats compactes ─────────────────────────────
+            // ── Stats ────────────────────────────────────────
             if (all.isNotEmpty) ...[
               Container(
-                color: AppTheme.background,
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
                 child: Row(
                   children: [
-                    _StatChip(
-                        label: 'Avancement',
-                        value: '$avgProg%',
-                        color: AppTheme.primary,
-                        bg: AppTheme.primarySoft),
-                    const SizedBox(width: 8),
-                    _StatChip(
-                        label: 'Terminées',
-                        value: '$terminees',
-                        color: AppTheme.success,
-                        bg: AppTheme.successSoft),
-                    const SizedBox(width: 8),
-                    _StatChip(
-                        label: 'À faire',
-                        value: '$aFaire',
-                        color: AppTheme.textLight,
-                        bg: AppTheme.darkSoft),
+                    _StatCard(
+                      label: 'Avancement',
+                      value: '$avgProg%',
+                      valueColor: AppTheme.primary,
+                      bg: const Color(0xFFFFF4ED),
+                      dotColor: AppTheme.primary,
+                    ),
+                    const SizedBox(width: 10),
+                    _StatCard(
+                      label: 'Terminées',
+                      value: '$terminees',
+                      valueColor: const Color(0xFF16A34A),
+                      bg: const Color(0xFFEAFAF0),
+                      dotColor: const Color(0xFF16A34A),
+                    ),
+                    const SizedBox(width: 10),
+                    _StatCard(
+                      label: 'À faire',
+                      value: '$aFaire',
+                      valueColor: const Color(0xFF64748B),
+                      bg: const Color(0xFFF1F5F9),
+                      dotColor: const Color(0xFF94A3B8),
+                    ),
                   ],
                 ),
               ),
-              const Divider(color: AppTheme.border, height: 1),
+              const Divider(color: Color(0xFFE2E8F0), height: 1),
             ],
 
             // ── Search ───────────────────────────────────────
@@ -115,17 +131,23 @@ class _StagiairesTabState extends State<StagiairesTab> {
               onChanged: (v) => setState(() => _search = v),
             ),
 
-            const Divider(color: AppTheme.border, height: 1),
+            const Divider(color: Color(0xFFE2E8F0), height: 1),
 
             // ── Liste ────────────────────────────────────────
+// ── Liste ────────────────────────────────────────────────────
             Expanded(
-              child: filtered.isEmpty
-                  ? const StagiairesEmpty()
-                  : ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 40),
-                itemCount: filtered.length,
-                itemBuilder: (_, i) =>
-                    StagiaireCard(stagiaire: filtered[i]),
+              child: Container(
+                color: Colors.white,
+                child: filtered.isEmpty
+                    ? const StagiairesEmpty()
+                    : ListView.builder(
+                  padding: EdgeInsets.fromLTRB(16, 14, 16, bottomInset + 100),
+                  itemCount: filtered.length,
+                  itemBuilder: (_, i) => StagiaireCard(
+                    stagiaire: filtered[i],
+                    avatarColor: _avatarColors[i % _avatarColors.length],
+                  ),
+                ),
               ),
             ),
           ],
@@ -135,60 +157,65 @@ class _StagiairesTabState extends State<StagiairesTab> {
   }
 }
 
-// ── Stat chip compact ─────────────────────────────────────────
-class _StatChip extends StatelessWidget {
+// ── Stat Card ─────────────────────────────────────────────────
+class _StatCard extends StatelessWidget {
   final String label;
   final String value;
-  final Color color;
+  final Color valueColor;
   final Color bg;
+  final Color dotColor;
 
-  const _StatChip({
+  const _StatCard({
     required this.label,
     required this.value,
-    required this.color,
+    required this.valueColor,
     required this.bg,
+    required this.dotColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration:
-              BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
               children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: color,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 10,
-                    color: color.withOpacity(0.8),
-                    fontWeight: FontWeight.w500,
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: valueColor,
+                letterSpacing: -0.5,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: valueColor.withOpacity(0.8),
+              ),
             ),
           ],
         ),

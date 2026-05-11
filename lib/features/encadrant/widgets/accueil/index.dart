@@ -6,4 +6,3 @@ export 'accueil_kpi_grid.dart';
 export 'accueil_progression_card.dart';
 export 'accueil_retard_card.dart';
 export 'accueil_activite_card.dart';
-export 'notifications_page.dart';

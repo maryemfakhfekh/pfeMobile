@@ -17,12 +17,35 @@ class StagiaireRepository {
   }
 
   Future<StagiaireModel> getMonDossier() async {
-    final res = await _api.dio.get('/stages/mon-dossier', options: await _opts());
+    final res = await _api.dio.get(
+      '/stages/mon-dossier',
+      options: await _opts(),
+    );
     return StagiaireModel.fromJson(res.data);
   }
 
   Future<bool> hasDossier() async {
-    final res = await _api.dio.get('/stages/has-dossier', options: await _opts());
+    final res = await _api.dio.get(
+      '/stages/has-dossier',
+      options: await _opts(),
+    );
     return res.data as bool;
+  }
+
+  Future<StagiaireModel> updateProfil({
+    required String nomComplet,
+    required String email,
+    required String telephone,
+  }) async {
+    final res = await _api.dio.put(
+      '/utilisateurs/mon-profil',
+      data: {
+        'nomComplet': nomComplet,
+        'email': email,
+        'telephone': telephone,
+      },
+      options: await _opts(),
+    );
+    return StagiaireModel.fromJson(res.data);
   }
 }

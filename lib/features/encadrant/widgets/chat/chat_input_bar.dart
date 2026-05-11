@@ -15,26 +15,38 @@ class ChatInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).padding.bottom;
+
     return Container(
-      color: AppTheme.surface,
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 16),
+      color: Colors.white,
+      padding: EdgeInsets.fromLTRB(12, 10, 12, bottom + 12),
       child: Row(
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: AppTheme.background,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppTheme.border),
+                border: Border.all(
+                    color: const Color(0xFFE2E8F0), width: 0.5),
               ),
               child: TextField(
                 controller: controller,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 13,
+                  color: Color(0xFF0F172A),
+                ),
                 decoration: const InputDecoration(
                   hintText: 'Écrire un message...',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 13,
+                    color: Color(0xFF94A3B8),
+                  ),
                   border: InputBorder.none,
-                  contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 10),
                 ),
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => onSend(),
@@ -43,29 +55,23 @@ class ChatInputBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          _SendButton(onSend: onSend),
+          GestureDetector(
+            onTap: onSend,
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: const BoxDecoration(
+                color: AppTheme.primary,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.send_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ),
         ],
-      ),
-    );
-  }
-}
-
-class _SendButton extends StatelessWidget {
-  final VoidCallback onSend;
-  const _SendButton({required this.onSend});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onSend,
-      child: Container(
-        width: 42,
-        height: 42,
-        decoration: const BoxDecoration(
-          color: AppTheme.primary,
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
       ),
     );
   }

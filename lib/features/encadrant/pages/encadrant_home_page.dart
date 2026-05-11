@@ -1,3 +1,5 @@
+// lib/features/encadrant/pages/encadrant_home_page.dart
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,7 +34,8 @@ class _EncadrantHomePageState extends State<EncadrantHomePage> {
     _loadNom();
     context.read<EncadrantBloc>()
       ..add(EncadrantDashboardRequested())
-      ..add(EncadrantStagiairesRequested());
+      ..add(EncadrantStagiairesRequested())
+      ..add(EncadrantCandidaturesRequested()); // ✅ charge les candidatures pour l'accueil
   }
 
   Future<void> _loadNom() async {
@@ -55,14 +58,15 @@ class _EncadrantHomePageState extends State<EncadrantHomePage> {
     ));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // ✅ gris très léger
+      backgroundColor: Colors.white,
       extendBody: true,
       body: IndexedStack(
         index: _index,
         children: [
           AccueilTab(
-              prenom: _prenom,
-              onProfilTap: () => setState(() => _index = 6)),
+            prenom: _prenom,
+            onProfilTap: () => setState(() => _index = 6),
+          ),
           const StagiairesTab(),
           const TachesTab(),
           const CandidaturesTab(),
@@ -138,9 +142,7 @@ class _EncadrantHomePageState extends State<EncadrantHomePage> {
             child: Center(
               child: Icon(
                 sel ? activeIcon : icon,
-                color: sel
-                    ? AppTheme.primary
-                    : const Color(0xFFCBD5E1),
+                color: sel ? AppTheme.primary : const Color(0xFFCBD5E1),
                 size: 19,
               ),
             ),

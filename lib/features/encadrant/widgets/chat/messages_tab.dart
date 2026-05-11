@@ -13,37 +13,71 @@ class MessagesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
+
     return BlocBuilder<EncadrantBloc, EncadrantState>(
       builder: (ctx, state) {
         final stagiaires = state.stagiaires;
-        return Column(children: [
-          Container(
-            color: AppTheme.surface,
-            padding: EdgeInsets.fromLTRB(20, top + 20, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Messages',
-                    style: Theme.of(context)
-                        .textTheme
-                        .displaySmall!
-                        .copyWith(color: AppTheme.textDark)),
-                Text('${stagiaires.length} conversation(s)',
-                    style: Theme.of(context).textTheme.bodySmall),
-              ],
+
+        return Column(
+          children: [
+
+            // ── Header ───────────────────────────────────────
+            Container(
+              color: Colors.white,
+              width: double.infinity,
+              padding: EdgeInsets.fromLTRB(20, top + 20, 20, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Messages',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${stagiaires.length} conversation${stagiaires.length > 1 ? 's' : ''}',
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Container(height: 1, color: AppTheme.borderLight),
-          Expanded(
-            child: stagiaires.isEmpty
-                ? const _MessagesEmpty()
-                : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
-              itemCount: stagiaires.length,
-              itemBuilder: (_, i) => ConversationCard(s: stagiaires[i]),
+
+            const Divider(color: Color(0xFFE2E8F0), height: 1),
+
+            // ── Liste ────────────────────────────────────────
+            Expanded(
+              child: Container(
+                color: Colors.white,
+                child: stagiaires.isEmpty
+                    ? const _MessagesEmpty()
+                    : ListView.separated(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom + 80,
+                  ),
+                  itemCount: stagiaires.length,
+                  separatorBuilder: (_, __) => const Divider(
+                    color: Color(0xFFE2E8F0),
+                    height: 1,
+                    indent: 76,
+                  ),
+                  itemBuilder: (_, i) => ConversationCard(
+                    s: stagiaires[i],
+                    index: i,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ]);
+          ],
+        );
       },
     );
   }
@@ -55,23 +89,43 @@ class _MessagesEmpty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(
-          width: 64, height: 64,
-          decoration: BoxDecoration(
-            color: AppTheme.primarySoft,
-            borderRadius: BorderRadius.circular(AppTheme.radiusXL),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppTheme.primarySoft,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(
+              Icons.chat_bubble_outline_rounded,
+              color: AppTheme.primary,
+              size: 28,
+            ),
           ),
-          child: const Icon(Icons.chat_bubble_outline_rounded,
-              color: AppTheme.primary, size: 28),
-        ),
-        const SizedBox(height: 14),
-        Text('Aucun stagiaire affecté',
-            style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 6),
-        Text('Les conversations apparaîtront ici',
-            style: Theme.of(context).textTheme.bodySmall),
-      ]),
+          const SizedBox(height: 16),
+          const Text(
+            'Aucune conversation',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Les conversations apparaîtront ici',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              color: Color(0xFF94A3B8),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

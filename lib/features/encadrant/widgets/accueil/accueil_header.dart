@@ -2,20 +2,17 @@
 
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../widgets/accueil/notifications_page.dart';
 
 class AccueilHeader extends StatelessWidget {
   final String prenom;
   final String date;
   final VoidCallback? onProfilTap;
-  final int notifCount;
 
   const AccueilHeader({
     super.key,
     required this.prenom,
     required this.date,
     this.onProfilTap,
-    this.notifCount = 0,
   });
 
   @override
@@ -23,7 +20,7 @@ class AccueilHeader extends StatelessWidget {
     final top = MediaQuery.of(context).padding.top;
 
     return Container(
-      color: const Color(0xFFF8FAFC),
+      color: Colors.white,
       padding: EdgeInsets.fromLTRB(20, top + 20, 20, 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,43 +63,6 @@ class AccueilHeader extends StatelessWidget {
           ),
           const SizedBox(width: 12),
 
-          // Cloche → ouvre NotificationsPage
-          GestureDetector(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NotificationsPage()),
-            ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFE2E8F0), width: 0.8),
-                  ),
-                  child: const Icon(Icons.notifications_outlined, size: 19, color: Color(0xFF475569)),
-                ),
-                if (notifCount > 0)
-                  Positioned(
-                    top: 7,
-                    right: 7,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE24B4A),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFF8FAFC), width: 1.5),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-
           // Avatar profil
           GestureDetector(
             onTap: onProfilTap,
@@ -112,9 +72,11 @@ class AccueilHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.dark,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppTheme.primary.withOpacity(0.35), width: 2),
+                border: Border.all(
+                    color: AppTheme.primary.withOpacity(0.35), width: 2),
               ),
-              child: const Icon(Icons.person_rounded, color: Colors.white, size: 20),
+              child: const Icon(Icons.person_rounded,
+                  color: Colors.white, size: 20),
             ),
           ),
         ],

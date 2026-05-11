@@ -28,18 +28,15 @@ class _EvaluationStagiaireDropdownState
   final _searchController = TextEditingController();
 
   static const List<Color> _avatarColors = [
-    Color(0xFF5C6BC0),
-    Color(0xFF26A69A),
-    Color(0xFFEF5350),
-    Color(0xFFAB47BC),
-    Color(0xFF42A5F5),
-    Color(0xFFFF7043),
-    Color(0xFF66BB6A),
-    Color(0xFFEC407A),
+    Color(0xFF1E293B),
+    Color(0xFF0F6E56),
+    Color(0xFF534AB7),
+    Color(0xFF993556),
+    Color(0xFF185FA5),
+    Color(0xFF854F0B),
   ];
 
-  Color _colorFor(String initials) =>
-      _avatarColors[initials.codeUnitAt(0) % _avatarColors.length];
+  Color _colorFor(int index) => _avatarColors[index % _avatarColors.length];
 
   List<StagiaireEncadrantModel> get _filtered {
     if (_search.isEmpty) return widget.stagiaires;
@@ -61,61 +58,61 @@ class _EvaluationStagiaireDropdownState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Label ────────────────────────────────────
-        Row(
-          children: [
-            const Icon(Icons.person_outline_rounded,
-                size: 16, color: AppTheme.primary),
-            const SizedBox(width: 6),
-            Text(
-              'Stagiaire à évaluer',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall!
-                  .copyWith(color: AppTheme.textDark),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
 
-        // ── Trigger ──────────────────────────────────
+        // ── Label ────────────────────────────────────────
+        const Text(
+          'Stagiaire à évaluer',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // ── Trigger ──────────────────────────────────────
         GestureDetector(
           onTap: () => setState(() => _open = !_open),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(AppTheme.radiusLG),
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(12),
+                topRight: const Radius.circular(12),
+                bottomLeft: Radius.circular(_open ? 0 : 12),
+                bottomRight: Radius.circular(_open ? 0 : 12),
+              ),
               border: Border.all(
-                color: _open ? AppTheme.primary : AppTheme.border,
-                width: _open ? 1.5 : 1,
+                color: _open ? AppTheme.primary : const Color(0xFFE2E8F0),
+                width: _open ? 1.5 : 0.5,
               ),
             ),
             child: Row(
               children: [
-                // Avatar ou icône placeholder
                 widget.selected != null
                     ? _Avatar(
                   initials: widget.selected!.initials,
-                  color: _colorFor(widget.selected!.initials),
+                  color: _colorFor(
+                      widget.stagiaires.indexOf(widget.selected!)),
                   size: 32,
                 )
                     : Container(
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppTheme.background,
+                    color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.border),
                   ),
-                  child: const Icon(Icons.person_outline_rounded,
-                      size: 18, color: AppTheme.textLight),
+                  child: const Icon(
+                    Icons.person_outline_rounded,
+                    size: 18,
+                    color: Color(0xFF94A3B8),
+                  ),
                 ),
                 const SizedBox(width: 12),
-
-                // Nom ou placeholder
                 Expanded(
                   child: widget.selected != null
                       ? Column(
@@ -123,209 +120,236 @@ class _EvaluationStagiaireDropdownState
                     children: [
                       Text(
                         widget.selected!.nomComplet,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall!
-                            .copyWith(color: AppTheme.textDark),
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                        ),
                         overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
                       ),
                       Text(
                         widget.selected!.sujetTitre,
-                        style:
-                        Theme.of(context).textTheme.labelSmall,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 11,
+                          color: Color(0xFF94A3B8),
+                        ),
                         overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
                       ),
                     ],
                   )
-                      : Text(
+                      : const Text(
                     'Choisir un stagiaire...',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .copyWith(color: AppTheme.textLight),
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 13,
+                      color: Color(0xFF94A3B8),
+                    ),
                   ),
                 ),
-
                 Icon(
                   _open
                       ? Icons.keyboard_arrow_up_rounded
                       : Icons.keyboard_arrow_down_rounded,
-                  color: AppTheme.textLight,
-                  size: 22,
+                  color: const Color(0xFF94A3B8),
+                  size: 20,
                 ),
               ],
             ),
           ),
         ),
 
-        // ── Dropdown ─────────────────────────────────
-        if (_open) ...[
-          const SizedBox(height: 8),
+        // ── Dropdown ─────────────────────────────────────
+        if (_open)
           Container(
             decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(AppTheme.radiusLG),
-              border: Border.all(color: AppTheme.border),
-              boxShadow: AppTheme.shadowMD,
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+              border: const Border(
+                left: BorderSide(color: AppTheme.primary, width: 1.5),
+                right: BorderSide(color: AppTheme.primary, width: 1.5),
+                bottom: BorderSide(color: AppTheme.primary, width: 1.5),
+              ),
             ),
-            child: Column(
-              children: [
-                // ── Recherche ───────────────────────
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (v) => setState(() => _search = v),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    decoration: InputDecoration(
-                      hintText: 'Rechercher...',
-                      prefixIcon: const Icon(Icons.search_rounded,
-                          size: 18, color: AppTheme.textLight),
-                      filled: true,
-                      fillColor: AppTheme.background,
-                      contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10),
-                      border: OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.circular(AppTheme.radiusMD),
-                        borderSide: BorderSide(color: AppTheme.border),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+
+                  // ── Recherche ───────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+                    child: Container(
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                            color: const Color(0xFFE2E8F0), width: 0.5),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.circular(AppTheme.radiusMD),
-                        borderSide: BorderSide(color: AppTheme.border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.circular(AppTheme.radiusMD),
-                        borderSide: const BorderSide(
-                            color: AppTheme.primary, width: 1.5),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (v) => setState(() => _search = v),
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          color: Color(0xFF0F172A),
+                        ),
+                        decoration: const InputDecoration(
+                          hintText: 'Rechercher...',
+                          hintStyle: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            color: Color(0xFF94A3B8),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search_rounded,
+                            size: 16,
+                            color: Color(0xFF94A3B8),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding:
+                          EdgeInsets.symmetric(vertical: 10),
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // ── Liste ───────────────────────────
-                if (_filtered.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text('Aucun résultat',
-                        style: Theme.of(context).textTheme.bodySmall),
-                  )
-                else
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _filtered.length,
-                    separatorBuilder: (_, __) => Divider(
-                        height: 1, color: AppTheme.borderLight),
-                    itemBuilder: (_, i) {
-                      final s = _filtered[i];
-                      final pct =
-                      (s.progressionGlobale * 100).toInt();
-                      final isSelected = widget.selected?.id == s.id;
+                  const Divider(color: Color(0xFFE2E8F0), height: 1),
 
-                      return GestureDetector(
-                        onTap: () {
-                          widget.onSelected(s);
-                          setState(() {
-                            _open = false;
-                            _search = '';
-                            _searchController.clear();
-                          });
-                        },
-                        child: Container(
-                          color: isSelected
-                              ? AppTheme.primarySoft
-                              : Colors.transparent,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 12),
-                          child: Row(
-                            children: [
-                              _Avatar(
-                                initials: s.initials,
-                                color: _colorFor(s.initials),
-                                size: 40,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                  // ── Liste sans espace ────────────────────
+                  if (_filtered.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text(
+                        'Aucun résultat',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ),
+                    )
+                  else
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(_filtered.length, (i) {
+                        final s = _filtered[i];
+                        final globalIndex = widget.stagiaires.indexOf(s);
+                        final pct = (s.progressionGlobale * 100).toInt();
+                        final isSelected = widget.selected?.id == s.id;
+                        final isLast = i == _filtered.length - 1;
+
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                widget.onSelected(s);
+                                setState(() {
+                                  _open = false;
+                                  _search = '';
+                                  _searchController.clear();
+                                });
+                              },
+                              child: Container(
+                                color: isSelected
+                                    ? AppTheme.primarySoft
+                                    : Colors.transparent,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 10),
+                                child: Row(
                                   children: [
-                                    Text(
-                                      s.nomComplet,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .copyWith(
-                                        color: AppTheme.textDark,
-                                        fontWeight: FontWeight.w700,
+                                    _Avatar(
+                                      initials: s.initials,
+                                      color: _colorFor(globalIndex),
+                                      size: 38,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            s.nomComplet,
+                                            style: const TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF0F172A),
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Row(children: [
+                                            Flexible(
+                                              child: Text(
+                                                s.sujetTitre,
+                                                style: const TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontSize: 10,
+                                                  color: Color(0xFF94A3B8),
+                                                ),
+                                                overflow:
+                                                TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            const Text(
+                                              ' · ',
+                                              style: TextStyle(
+                                                color: Color(0xFF94A3B8),
+                                                fontSize: 10,
+                                              ),
+                                            ),
+                                            Text(
+                                              '$pct%',
+                                              style: const TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: AppTheme.primary,
+                                              ),
+                                            ),
+                                          ]),
+                                        ],
                                       ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
                                     ),
-                                    const SizedBox(height: 2),
-                                    // ← Fix overflow ici
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            s.sujetTitre,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelSmall,
-                                            overflow:
-                                            TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                        const Text(
-                                          ' • ',
-                                          style: TextStyle(
-                                            color: AppTheme.textLight,
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                        Text(
-                                          '$pct%',
-                                          style: const TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppTheme.primary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    if (isSelected)
+                                      const Icon(
+                                        Icons.check_circle_rounded,
+                                        color: AppTheme.primary,
+                                        size: 18,
+                                      ),
                                   ],
                                 ),
                               ),
-                              if (isSelected) ...[
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  Icons.check_circle_rounded,
-                                  color: AppTheme.primary,
-                                  size: 18,
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-              ],
+                            ),
+                            if (!isLast)
+                              const Divider(
+                                  color: Color(0xFFE2E8F0), height: 1),
+                          ],
+                        );
+                      }),
+                    ),
+                ],
+              ),
             ),
           ),
-        ],
       ],
     );
   }
 }
 
+// ── Avatar ────────────────────────────────────────────────────
 class _Avatar extends StatelessWidget {
   final String initials;
   final Color color;
